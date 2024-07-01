@@ -1,0 +1,372 @@
+---
+title: "Water Quality in North Carolina: Nutrients and Specific Conductance" 
+author: "Peggy Chen"
+date: "2024-06-28"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# R Markdown
+
+Using the USGS "dataRetrieval" package to plot the frequency of measuring certain chemicals across North Carolina. 
+
+Paramter codes, or PCodes, are dependent on the chemical or physical factor being tested. 
+For a list of the codes, go to: https://help.waterdata.usgs.gov/code/parameter_cd_query?fmt=rdb&group_cd=NUT&inline=true 
+
+Need help? Type into the console: HASP::explore_site() 
+
+### Loading and prepping data 
+
+```{r}
+library(tidyverse) 
+library(remotes)
+library(HASP)
+library(dataRetrieval)
+library(dplyr)
+library(ggplot2)
+library(sf)
+library(remotes)
+library(HASP)
+```
+
+### Plotting total nitrogen testing sites across NC 
+
+Note that total nitrogen in this plot is defined as nitrate, nitrite, ammonia, organic-N, and is tested in water, unfiltered, and measured in milligrams per liter. 
+
+```{r}
+# What sites measured nitrogen in North Carolina? 
+nitrogen_sites <- whatNWISsites(stateCd = "NC", 
+                          parameterCd = "00600")
+nrow(nitrogen_sites)
+
+# Identify these sites 
+names(nitrogen_sites)
+
+# Plot the locations of these sites 
+usa <- st_as_sf(maps::map("state", fill=TRUE, plot =FALSE),
+                crs = 4269)
+
+sf_nitrogen <- st_as_sf(nitrogen_sites, 
+                  coords = c("dec_long_va", "dec_lat_va"),
+                  crs = 4269)
+
+# Bad map :( 
+ggplot() +
+  geom_sf(data = usa[ usa$ID == "north carolina" ,]) +
+  geom_sf(data = sf_nitrogen) + 
+  xlab(NULL)+
+  ylab(NULL)+
+  theme_minimal() +
+  theme(plot.title = element_text(hjust = 0.5),
+        plot.subtitle = element_text(hjust = 0.5)) + 
+  labs(title = "USGS Locations that Meausure Total Nitrogen in Water across North Carolina", 
+       caption = "Laura DeCicco, USGS. 2021")
+
+```
+
+### Plotting ammonia testing sites across NC 
+
+```{r}
+ammonia_sites <- whatNWISsites(stateCd = "NC", 
+                          parameterCd = "00608")
+usa <- st_as_sf(maps::map("state", fill=TRUE, plot =FALSE),
+                crs = 4269)
+sf_ammonia <- st_as_sf(ammonia_sites, 
+                  coords = c("dec_long_va", "dec_lat_va"),
+                  crs = 4269)
+ggplot() +
+  geom_sf(data = usa[ usa$ID == "north carolina" ,]) +
+  geom_sf(data = sf_ammonia) + 
+  xlab(NULL)+
+  ylab(NULL)+
+  theme_minimal() +
+  theme(plot.title = element_text(hjust = 0.5),
+        plot.subtitle = element_text(hjust = 0.5)) + 
+  labs(title = "USGS Locations that Meausure Ammonia in Water across North Carolina", 
+       caption = "Laura DeCicco, USGS. 2021") 
+```
+
+### Plotting phosphate freq across state 
+
+```{r}
+phosphate_site <- whatNWISsites(stateCd = "NC", 
+                               parameterCd = "00650")
+usa <- st_as_sf(maps::map("state", fill=TRUE, plot =FALSE),
+                crs = 4269)
+sf_phosphate <- st_as_sf(phosphate_site, 
+                       coords = c("dec_long_va", "dec_lat_va"),
+                       crs = 4269)
+ggplot() +
+  geom_sf(data = usa[ usa$ID == "north carolina" ,]) +
+  geom_sf(data = sf_phosphate) + 
+  xlab(NULL)+
+  ylab(NULL)+
+  theme_minimal() +
+  theme(plot.title = element_text(hjust = 0.5),
+        plot.subtitle = element_text(hjust = 0.5)) + 
+  labs(title = "USGS Locations that Meausure Phosphate in Water across North Carolina", 
+       caption = "Laura DeCicco, USGS. 2021") 
+``` 
+
+### Field Specific Conductance freq across NC Map  
+
+Specific conductance, water, unfiltered, field, microsiemens per centimeter at 25 degrees. 
+
+```{r}
+conductivity_sites <- whatNWISsites(stateCd = "NC", 
+                          parameterCd = "00094")
+usa <- st_as_sf(maps::map("state", fill=TRUE, plot =FALSE),
+                crs = 4269)
+sf_conductivity <- st_as_sf(conductivity_sites, 
+                  coords = c("dec_long_va", "dec_lat_va"),
+                  crs = 4269)
+ggplot() +
+  geom_sf(data = usa[ usa$ID == "north carolina" ,]) +
+  geom_sf(data = sf_conductivity) + 
+  xlab(NULL)+
+  ylab(NULL)+
+  theme_minimal() +
+  theme(plot.title = element_text(hjust = 0.5),
+        plot.subtitle = element_text(hjust = 0.5)) + 
+  labs(title = "USGS Locations that Meausure Field Specific Conductance across North Carolina", 
+       caption = "Laura DeCicco, USGS. 2021") 
+```
+
+### Non-field SC in NC Map  
+
+Specific conductance, water, unfiltered, microsiemens per centimeter at 25 degrees Celsius. 
+
+```{r}
+conductivity_sites_2 <- whatNWISsites(stateCd = "NC", 
+                          parameterCd = "00095")
+usa <- st_as_sf(maps::map("state", fill=TRUE, plot =FALSE),
+                crs = 4269)
+sf_conductivity_2 <- st_as_sf(conductivity_sites_2, 
+                  coords = c("dec_long_va", "dec_lat_va"),
+                  crs = 4269)
+ggplot() +
+  geom_sf(data = usa[ usa$ID == "north carolina" ,]) +
+  geom_sf(data = sf_conductivity_2) + 
+  xlab(NULL)+
+  ylab(NULL)+
+  theme_minimal() +
+  theme(plot.title = element_text(hjust = 0.5),
+        plot.subtitle = element_text(hjust = 0.5)) + 
+  labs(title = "USGS Locations that Meausure Specific Conductance across North Carolina", 
+       caption = "Laura DeCicco, USGS. 2021") 
+```
+
+### Another SC across NC Map 
+
+Specific conductance, water, unfiltered, laboratory, microsiemens per centimeter at 25 degrees Celsius	USGS use and no use by EPA. Total	25 deg C. Specific conductance uS/cm. 
+
+```{r}
+conductivity_sites_3 <- whatNWISsites(stateCd = "NC", 
+                          parameterCd = "90095")
+usa <- st_as_sf(maps::map("state", fill=TRUE, plot =FALSE),
+                crs = 4269)
+sf_conductivity_3 <- st_as_sf(conductivity_sites_3, 
+                  coords = c("dec_long_va", "dec_lat_va"),
+                  crs = 4269)
+ggplot() +
+  geom_sf(data = usa[ usa$ID == "north carolina" ,]) +
+  geom_sf(data = sf_conductivity_3) + 
+  xlab(NULL)+
+  ylab(NULL)+
+  theme_minimal() +
+  theme(plot.title = element_text(hjust = 0.5),
+        plot.subtitle = element_text(hjust = 0.5)) + 
+  labs(title = "USGS Locations that Meausure Specific Conductance across North Carolina", 
+       caption = "Laura DeCicco, USGS. 2021") 
+```
+
+### Filtered Data Example 
+
+This example filters the points so that rather than displaying all locations where 
+nitrogen is tested, it only finds sites with more than 100 measurements and at least 
+5 measurements per year 
+
+```{r}
+# Assign codes and pull data 
+pCode <- c("00600")
+phNC <- whatNWISdata(stateCd="NC", 
+                     parameterCd=pCode)
+
+# Filter data acc. to freq and measurement count 
+phNC_1 <- phNC %>% 
+  filter(count_nu > 100) %>% # At least 100 measurments 
+  mutate(period = as.Date(end_date) - as.Date(begin_date)) %>%
+  filter(period > 5*365) # At least 5x/year 
+
+nitrogen_NC_data <- readNWISqw(siteNumbers = phNC_1$site_no,
+                         parameterCd = pCode)
+
+# Let’s look at the maximum measured value, and number of samples 
+nitrogen_summary <- nitrogen_NC_data %>% 
+  group_by(site_no) %>% 
+  summarize(max = max(result_va, na.rm = TRUE),
+            count = n()) %>% 
+  ungroup() %>% 
+  left_join(attr(nitrogen_NC_data, "siteInfo"), 
+            by = "site_no")
+
+# Prep data to map >:( 
+sf_nitrogen <- st_as_sf(nitrogen_summary, 
+                       coords = c("dec_long_va", "dec_lat_va"),
+                       crs = 4269)
+
+# Map 
+plot_1 <- ggplot() +
+  geom_sf(data = usa[ usa$ID == "north carolina" ,]) +
+  geom_sf(data = sf_nitrogen) + 
+  xlab(NULL)+
+  ylab(NULL)+
+  theme_minimal() +
+  theme(plot.title = element_text(hjust = 0.5),
+        plot.subtitle = element_text(hjust = 0.5)) + 
+  labs(title = "Nitrogen in North Carolina", 
+       caption = "Laura DeCicco, USGS. 2021") 
+plot_1
+```
+
+### Plotting over time 
+
+These plots are measurements of specific conductance overtime, and the site codes are obtained 
+from the "sf_conductivity" data that can be found in the environment. 
+
+```{r}
+site <- "02129000"
+
+qw_data <- readWQPqw(paste0("USGS-", site),
+                     c("Specific conductance"))
+
+plot <- ggplot(data = qw_data, aes(x = ActivityStartDate, y = ResultMeasureValue)) + 
+  geom_point()
+plot
+```
+
+### Trying more sites 
+
+```{r}
+site <- "02092500"
+
+qw_data <- readWQPqw(paste0("USGS-", site),
+                     c("Specific conductance"))
+
+plot_1 <- ggplot(data = qw_data, aes(x = ActivityStartDate, y = ResultMeasureValue)) + 
+  geom_point()
+
+plot_1
+
+```
+
+```{r}
+site <- "335334078352105"
+
+qw_data <- readWQPqw(paste0("USGS-", site),
+                     c("Specific conductance"))
+
+plot_2 <- ggplot(data = qw_data, aes(x = ActivityStartDate, y = ResultMeasureValue)) + 
+  geom_point()
+
+plot_2
+```
+
+```{r}
+site <- "02083500"
+
+qw_data <- readWQPqw(paste0("USGS-", site),
+                     c("Specific conductance"))
+
+plot_3 <- ggplot(data = qw_data, aes(x = ActivityStartDate, y = ResultMeasureValue)) + 
+  geom_point()
+
+plot_3 
+```
+
+```{r}
+site <- "02091500"
+
+qw_data <- readWQPqw(paste0("USGS-", site),
+                     c("Specific conductance"))
+
+plot_4 <- ggplot(data = qw_data, aes(x = ActivityStartDate, y = ResultMeasureValue)) + 
+  geom_point() 
+
+plot_4 
+```
+```{r}
+site <- "02089500"
+
+qw_data <- readWQPqw(paste0("USGS-", site),
+                     c("Specific conductance"))
+
+plot_5 <- ggplot(data = qw_data, aes(x = ActivityStartDate, y = ResultMeasureValue)) + 
+  geom_point() 
+
+plot_5 
+```
+
+```{r}
+site <- "02105769"
+
+qw_data <- readWQPqw(paste0("USGS-", site),
+                     c("Specific conductance"))
+
+plot_6 <- ggplot(data = qw_data, aes(x = ActivityStartDate, y = ResultMeasureValue)) + 
+  geom_point() 
+
+plot_6 
+```
+
+```{r}
+site <- "02105524"
+
+qw_data <- readWQPqw(paste0("USGS-", site),
+                     c("Specific conductance"))
+
+plot_7 <- ggplot(data = qw_data, aes(x = ActivityStartDate, y = ResultMeasureValue)) + 
+  geom_point() 
+
+plot_7 
+```
+
+```{r}
+site <- "02098198"
+
+qw_data <- readWQPqw(paste0("USGS-", site),
+                     c("Specific conductance"))
+
+plot_8 <- ggplot(data = qw_data, aes(x = ActivityStartDate, y = ResultMeasureValue)) + 
+  geom_point() 
+
+plot_8 
+```
+
+```{r}
+site <- "02129000"
+
+qw_data <- readWQPqw(paste0("USGS-", site),
+                     c("Specific conductance"))
+
+plot_9 <- ggplot(data = qw_data, aes(x = ActivityStartDate, y = ResultMeasureValue)) + 
+  geom_point() 
+
+plot_9 
+```
+
+```{r}
+site <- "03460000"
+
+qw_data <- readWQPqw(paste0("USGS-", site),
+                     c("Specific conductance"))
+
+plot_10 <- ggplot(data = qw_data, aes(x = ActivityStartDate, y = ResultMeasureValue)) + 
+  geom_point() 
+
+plot_10 
+```
+
