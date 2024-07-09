@@ -18,6 +18,20 @@ For a list of the codes, go to: https://help.waterdata.usgs.gov/code/parameter_c
 
 Need help? Type into the console: HASP::explore_site() 
 
+### Installing the USGS HASP package 
+```{r}
+# First install the remotes package 
+# install.packages("remotes") 
+
+# Install HASP package 
+# remotes::install_gitlab("water/stats/hasp", 
+                        # host = "code.usgs.gov", 
+                        # build_opts = c("--no-resave-data","--no-manual"), 
+                        # build_vignettes = TRUE, 
+                        # dependencies = TRUE) 
+```
+
+
 ### Loading and prepping data 
 
 ```{r}
@@ -28,8 +42,7 @@ library(dataRetrieval)
 library(dplyr)
 library(ggplot2)
 library(sf)
-library(remotes)
-library(HASP)
+library(olsrr)
 ```
 
 ### Plotting total nitrogen testing sites across NC 
@@ -370,3 +383,35 @@ plot_10 <- ggplot(data = qw_data, aes(x = ActivityStartDate, y = ResultMeasureVa
 plot_10 
 ```
 
+### Calculating Linear Regression and R Squared 
+
+```{r}
+site <- "02129000" 
+
+qw_data <- readWQPqw(paste0("USGS-", site),
+                     c("Specific conductance")) 
+
+y <- qw_data$ResultMeasureValue 
+x <- qw_data$ActivityStartDate
+
+# Estimate the model and same the results in object "ols"
+ols <- lm(y ~ x, data = qw_data) 
+
+# Print the result in the console
+ols
+
+# Determine accuracy 
+summary(ols)$r.squared
+
+# Now graph the regression line 
+regression_1 <- ggplot(qw_data, aes(x = ActivityStartDate, y = ResultMeasureValue)) +
+  geom_point() + 
+  geom_smooth(method = "lm",  fill="#69b3a2", se = TRUE) + 
+  labs(title = "Specific Conductance over Time at Pee Dee River in Rockingham, NC", 
+       x= "Year", 
+       y = "Specific conductance in µS/cm at 25 °C", 
+       caption = "USGS Water Quality Data, 2024.") + 
+  theme_bw() 
+
+regression_1 
+``` 
