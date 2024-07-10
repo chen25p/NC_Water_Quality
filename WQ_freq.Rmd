@@ -48,12 +48,21 @@ library(olsrr)
 ### Plotting total nitrogen testing sites across NC 
 
 Note that total nitrogen in this plot is defined as nitrate, nitrite, ammonia, organic-N, and is tested in water, unfiltered, and measured in milligrams per liter. 
+```{r}
+pcode <- readNWISpCode("all")
+
+phosCds <- pcode[grep("specific conductance",
+                      pcode$parameter_nm,
+                      ignore.case=TRUE),]
+
+names(phosCds)
+```
+
 
 ```{r}
 # What sites measured nitrogen in North Carolina? 
 nitrogen_sites <- whatNWISsites(stateCd = "NC", 
                           parameterCd = "00600")
-nrow(nitrogen_sites)
 
 # Identify these sites 
 names(nitrogen_sites)
@@ -93,8 +102,8 @@ sf_ammonia <- st_as_sf(ammonia_sites,
 ggplot() +
   geom_sf(data = usa[ usa$ID == "north carolina" ,]) +
   geom_sf(data = sf_ammonia) + 
-  xlab(NULL)+
-  ylab(NULL)+
+  xlab(NULL) +
+  ylab(NULL) +
   theme_minimal() +
   theme(plot.title = element_text(hjust = 0.5),
         plot.subtitle = element_text(hjust = 0.5)) + 
@@ -363,7 +372,7 @@ plot_8
 site <- "02129000"
 
 qw_data <- readWQPqw(paste0("USGS-", site),
-                     c("Specific conductance"))
+                     c("Specific conductance")) 
 
 plot_9 <- ggplot(data = qw_data, aes(x = ActivityStartDate, y = ResultMeasureValue)) + 
   geom_point() 
