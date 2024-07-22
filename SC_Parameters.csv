@@ -1,0 +1,24 @@
+PCode,Type,Description,Epa_Equivalence,Sample_Type,Temperature,SRSName,Units
+94,Physical,"Specific conductance, water, unfiltered, field, microsiemens per centimeter at 25 degrees Celsius",Agree,Total,25 deg C,Specific conductance,uS/cm @25C
+95,Physical,"Specific conductance, water, unfiltered, microsiemens per centimeter at 25 degrees Celsius",Agree,Total,25 deg C,Specific conductance,uS/cm @25C
+402,Physical,"Specific conductance, non-temperature corrected, water, unfiltered, microsiemens per centimeter",Agree,Total,,Specific conductance,uS/cm
+70386,Physical,"Salinity, water, computed by regression equation from specific conductance, milligrams per liter",Not checked,Total,,Salinity,mg/l
+72430,Physical,"Specific conductance, water, filtered, field, microsiemens per centimeter at 25 degrees Celsius",Not checked,Dissolved,25 deg C,Specific conductance,uS/cm @25C
+83150,Physical,"Specific conductance, wet atmospheric deposition, filtered, calculated, microsiemens per centimeter at 25 degrees Celsius",Agree,Dissolved,25 deg C,Specific conductance,uS/cm @25C
+83151,Physical,"Specific conductance, wet atmospheric deposition, unfiltered, calculated, microsiemens per centimeter at 25 degrees Celsius",Agree,Total,25 deg C,Specific conductance,uS/cm @25C
+83153,Physical,"Specific conductance, wet atmospheric deposition, filtered, field, microsiemens per centimeter at 25 degrees Celsius",Agree,Dissolved,25 deg C,Specific conductance,uS/cm @25C
+83154,Physical,"Specific conductance, wet atmospheric deposition, unfiltered, field, microsiemens per centimeter at 25 degrees Celsius",Agree,Total,25 deg C,Specific conductance,uS/cm @25C
+83155,Physical,"Specific conductance, wet atmospheric deposition, filtered, laboratory, microsiemens per centimeter at 25 degrees Celsius",Agree,Dissolved,25 deg C,Specific conductance,uS/cm @25C
+83156,Physical,"Specific conductance, wet atmospheric deposition, unfiltered, laboratory, microsiemens per centimeter at 25 degrees Celsius",Agree,Total,25 deg C,Specific conductance,uS/cm @25C
+83432,Physical,"Specific conductance, bulk atmospheric deposition, filtered, calculated, microsiemens per centimeter at 25 degrees Celsius",Agree,Dissolved,25 deg C,Specific conductance,uS/cm @25C
+83433,Physical,"Specific conductance, bulk atmospheric deposition, unfiltered, calculated, microsiemens per centimeter at 25 degrees Celsius",Agree,Total,25 deg C,Specific conductance,uS/cm @25C
+83435,Physical,"Specific conductance, bulk atmospheric deposition, filtered, field, microsiemens per centimeter at 25 degrees Celsius",Agree,Dissolved,25 deg C,Specific conductance,uS/cm @25C
+83436,Physical,"Specific conductance, bulk atmospheric deposition, unfiltered, field, microsiemens per centimeter at 25 degrees Celsius",Agree,Total,25 deg C,Specific conductance,uS/cm @25C
+83437,Physical,"Specific conductance, bulk atmospheric deposition, filtered, laboratory, microsiemens per centimeter at 25 degrees Celsius",Agree,Dissolved,25 deg C,Specific conductance,uS/cm @25C
+83438,Physical,"Specific conductance, bulk atmospheric deposition, unfiltered, laboratory, microsiemens per centimeter at 25 degrees Celsius",Agree,Total,25 deg C,Specific conductance,uS/cm @25C
+90094,Physical,"Specific conductance, water, unfiltered, area weighted average, microsiemens per centimeter at 25 degrees Celsius",USGS use and no use by EPA,Total,25 deg C,Specific conductance,uS/cm @25C
+90095,Physical,"Specific conductance, water, unfiltered, laboratory, microsiemens per centimeter at 25 degrees Celsius",USGS use and no use by EPA,Total,25 deg C,Specific conductance,uS/cm @25C
+90096,Physical,"Specific conductance, water, filtered, laboratory, microsiemens per centimeter at 25 degrees Celsius",Not checked,Dissolved,,Specific conductance,uS/cm @25C
+99974,Physical,"Specific conductance, 1 meter below water surface, microsiemens per centimeter at 25 degrees Celsius",USGS use and no use by EPA,,25 deg C,Specific conductance,uS/cm @25C
+99978,Physical,"Specific conductance, water, 1 meter above bottom, microsiemens per centimeter at 25 degrees Celsius",USGS use and no use by EPA,,25 deg C,Specific conductance,uS/cm @25C
+99982,Physical,"Specific conductance, water, mid-depth of water column, microsiemens per centimeter at 25 degrees Celsius",USGS use and no use by EPA,,25 deg C,Specific conductance,uS/cm @25C

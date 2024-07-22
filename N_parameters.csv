@@ -1,0 +1,16 @@
+Parameter Code,Group Name,Parameter Name/Description,Epa equivalence,Result Sample Fraction,CASRN,SRSName,Parameter Unit
+00618,Nutrient,"Nitrate, water, filtered ",Agree,Dissolved,14797-55-8,Nitrate,mg/l as N
+00620,Nutrient,"Nitrate, water, unfiltered ",Agree,Total,14797-55-8,Nitrate,mg/l as N
+51185,Nutrient,"Nitrate, water, unfiltered ",Not checked,Total,14797-55-8,Nitrate,mg/l
+51290,Nutrient,"Nitrate, water, in situ ",Not checked,Total,14797-55-8,Nitrate,mg/l
+64832,Nutrient,"Nitrate, water, filtered ",USGS use and no use by EPA,Dissolved,14797-55-8,Nitrate,ug/L as N
+71850,Nutrient,"Nitrate, water, unfiltered ",Agree,Total,14797-55-8,Nitrate,mg/l as NO3
+71851,Nutrient,"Nitrate, water, filtered ",Agree,Dissolved,14797-55-8,Nitrate,mg/l as NO3
+91003,Nutrient,"Nitrate, water, filtered ",USGS use and no use by EPA,Dissolved,14797-55-8,Nitrate,ug/l
+91006,Nutrient,"Nitrate, water, dissolved ",USGS use and no use by EPA,Dissolved,14797-55-8,Nitrate,tons/day
+99121,Nutrient,"Nitrate, water, filtered, field ",USGS use and no use by EPA,Dissolved,14797-55-8,Nitrate,mg/l as N
+99124,Nutrient,"Nitrate, water, unfiltered, field ",USGS use and no use by EPA,Total,14797-55-8,Nitrate,mg/l as N
+99130,Nutrient,"Nitrate, water, unfiltered, field ",USGS use and no use by EPA,Total,14797-55-8,Nitrate,umol/L
+99136,Nutrient,"Nitrate, water, in situ ",Not checked,Total,14797-55-8,Nitrate,umol/L
+99137,Nutrient,"Nitrate, water, in situ ",Not checked,Total,14797-55-8,Nitrate,mg/l as N
+99411,Nutrient,"Nitrate, water, filtered, estimated by regression equation ",USGS use and no use by EPA,Dissolved,14797-55-8,Nitrate,mg/l as N

@@ -1,4 +1,4 @@
-# Water Quality Measurements Since 2010 
+# Specific Conductance Since 2010 
 # Peggy Chen 
 # July 10, 2024 
 
@@ -51,7 +51,9 @@ sf_scNC_1 <- st_as_sf(scNC_1,
                         coords = c("dec_long_va", "dec_lat_va"),
                         crs = 4269)
 usa <- st_as_sf(maps::map("state", fill=TRUE, plot =FALSE),
-                crs = 4269)
+                crs = 4269) 
+
+##### Map of site locations ##### 
 plot_scNC <- ggplot() +
   geom_sf(data = usa[ usa$ID == "north carolina" ,]) +
   geom_sf(data = sf_scNC_1) + 
@@ -60,8 +62,8 @@ plot_scNC <- ggplot() +
   theme_minimal() +
   theme(plot.title = element_text(hjust = 0.5),
         plot.subtitle = element_text(hjust = 0.5)) + 
-  labs(title = "Specific Conductance in North Carolina", 
-       caption = "Laura DeCicco, USGS. 2024") 
+  labs(title = "Sites that Measure Specific Conductance in Water in NC since 2010", 
+       caption = "United States Geological Survey, 2024.") 
 plot_scNC
 
 # Let’s look at the maximum measured value, and number of samples 
@@ -76,9 +78,9 @@ scNC_1_summary <- sc_NC_data %>%
   left_join(attr(sc_NC_data, "siteInfo"), 
             by = "site_no")
 
+##### Simple over time graph ##### 
 # Get specific conductance measurements 
-sc_sites <- scNC_1$site_no
-
+sc_sites <- scNC_1$site_no 
 sc_all_data <- readWQPqw(paste0("USGS-", sc_sites),
                      c("Specific conductance"))
 
@@ -89,8 +91,11 @@ sc_all_data <- sc_all_data %>%
 
 # Plot specific conductance data 
 plot_sc <- ggplot(data = sc_all_data, aes(x = ActivityStartDate, y = ResultMeasureValue)) + 
-  geom_point()
-
+  geom_point() + 
+  labs(title = "Specific Conductance in North Carolina Waters since 2010", 
+       x = "Years", 
+       y = "Specific conductance in us/cm @ 25 degrees C", 
+       caption = "United States Geological Survey, 2024.") 
 plot_sc 
 
 ##### Adding counties ##### 
@@ -183,7 +188,7 @@ plot_sc_coastal_1 <- ggplot(data = sc_clean_coastal_data, aes(x = ActivityStartD
   labs(title = "Specific Condutance Measurements in CAMA Counties from 2010 - 2020", 
        x = "Year", 
        y = "Specific conductance in uS/cm at 25 degrees C", 
-       caption = "689 measurements from 2010 - 2020.") + 
+       caption = "USGS, 2024.") + 
   geom_smooth(method = "lm",  fill="#69b3a2", se = TRUE) 
 plot_sc_coastal_1
 
@@ -191,49 +196,6 @@ plot_sc_coastal_1
 sc_max_data <- sc_all_coastal_data %>% 
   filter(ResultMeasureValue > 40000)
 # Max days: 2017-05-18 and 2012-09-05 
-
-##### SC Test ##### 
-pCode <- c("00094", "00095", "00402", "70386", "72430", "90094", "90095", 
-           "90096", "99974", "99978", "99982")
-scSC <- whatNWISdata(stateCd="GA", 
-                     parameterCd=pCode)
-
-# Tidy data 
-scSC <- scSC %>%
-  separate(begin_date, into = c("Year_start"), sep = "-", remove = FALSE) %>% 
-  separate(end_date, into = c("Year_end"), sep = "-", remove = FALSE) 
-
-# Filter data acc. to start date of measurements 
-scSC_1 <- scSC %>% 
-  mutate(period = as.Date(end_date) - as.Date(begin_date)) %>%
-  filter(Year_start > 2010)
-
-# Get specific conductance measurements 
-sc_sites_1 <- scSC_1$site_no
-
-sc_all_data_1 <- readWQPqw(paste0("USGS-", sc_sites_1),
-                         c("Specific conductance"))
-
-# Tidy data 
-sc_all_data_1 <- sc_all_data_1 %>%
-  separate(ActivityStartDate, into = c("Year_start"), sep = "-", remove = FALSE) %>% 
-  filter(Year_start > 2010)
-
-# Date of the line of data values: 2019-04-12 
-sc_max <- sc_all_data_1 %>%
-  separate(ActivityStartDate, into = c("Year_start"), sep = "-", remove = FALSE) %>% 
-  filter(ResultMeasureValue < 10000) %>% 
-  filter(ResultMeasureValue > 7500)
-
-# Plot specific conductance data 
-plot_sc <- ggplot(data = sc_all_data_1, aes(x = ActivityStartDate, y = ResultMeasureValue)) + 
-  geom_point() + 
-  labs(title = "Specific Condutance Measurements in SC since 2010", 
-       x = "Year", 
-       y = "Specific conductance in uS/cm at 25 degrees C", 
-       caption = "USGS, 2024.") + 
-  geom_smooth(method = "lm",  fill="#69b3a2", se = TRUE) 
-plot_sc 
 
 ##### Isolating Carteret County ##### 
 counties_of_interest <- c("carteret")
@@ -255,3 +217,30 @@ carteret <- ggplot(data = carteret_data, aes(x = ActivityStartDate, y = ResultMe
        caption = "USGS, 2024.") + 
   geom_smooth(method = "lm",  fill="#69b3a2", se = TRUE) 
 carteret 
+
+##### Separating based on ground or surface water ##### 
+sc_groundwater <- subset(sc_all_coastal_data, ActivityMediaSubdivisionName 
+                              %in% c("Groundwater"))
+
+sc_surfacewater <- subset(sc_all_coastal_data, ActivityMediaSubdivisionName 
+                               %in% c("Surface Water")) 
+
+# Plot respectively 
+sc_gw <- ggplot(data = sc_groundwater, aes(x = ActivityStartDate, y = ResultMeasureValue)) + 
+  geom_point() + 
+  labs(title = "Specific Condutance Measurements in Groundwater in North Carolina since 2010", 
+       x = "Year", 
+       y = "Specific conductance in uS/cm at 25 degrees C", 
+       caption = "USGS, 2024.") + 
+  geom_smooth(method = "lm",  fill="#69b3a2", se = TRUE) 
+sc_gw 
+
+sc_sw <- ggplot(data = sc_surfacewater, aes(x = ActivityStartDate, y = ResultMeasureValue)) + 
+  geom_point() + 
+  labs(title = "Specific Condutance Measurements in Surface Water in North Carolina since 2010", 
+       x = "Year", 
+       y = "Specific conductance in uS/cm at 25 degrees C", 
+       caption = "USGS, 2024.") + 
+  geom_smooth(method = "lm",  fill="#69b3a2", se = TRUE) 
+sc_sw 
+
