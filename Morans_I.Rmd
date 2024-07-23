@@ -1,0 +1,205 @@
+---
+title: "Moran's I Analysis"
+author: "Peggy Chen"
+date: "2024-07-22"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Overview  
+
+This document is focused on calculating the global Moran's I of USGS sites that measure specific conductance in North Carolina, using data from the National Water Information System (NWIS). I am interested in whether sites with certain numbers of measurements recorded are closer to each other than sites with differing amounts of measurements. Essentially, I'm curious whether sites with high numbers of measurements are clustered together, so that I can target these areas for further analysis. 
+
+## Preparing the R Environment 
+
+Preparing to calculate Moran's I includes installing the HASP package that allows you to access NWIS data directly without importing .csv files, and loading the various libraries required. 
+
+### The HASP Package
+
+To install the HASP package, I first installed the "remotes" package. Additionally, I only ran the following chunk of code manually once, since it is excluded from the document when it is knit. 
+
+```{r HASP, eval=FALSE, warning = FALSE}
+# First install the remotes package 
+install.packages("remotes") 
+
+# Install HASP package 
+remotes::install_gitlab("water/stats/hasp", 
+                        host = "code.usgs.gov", 
+                        build_opts = c("--no-resave-data","--no-manual"), 
+                        build_vignettes = TRUE, 
+                        dependencies = TRUE) 
+```
+
+### Loading Libraries 
+
+These are all the libraries I needed to use. 
+
+```{r loadlib, echo=T, results='hide', message=F, warning=F} 
+library(tidyverse) 
+library(remotes)
+library(HASP)
+library(dataRetrieval)
+library(dplyr)
+library(ggplot2)
+library(sf)
+library(olsrr)
+library(maps)
+library(DataExplorer)
+library(nycflights13)
+library(knitr)
+library(lubridate)
+library(dygraphs)
+library(xts) 
+library(zoo)
+library(stats)
+library(ape)
+```
+
+## Preparing Data 
+
+In this section, I pulled, tidyed, and prepared the data for the Moran's I. 
+
+### Pulling Site Location Data 
+
+Every PCode involving specific conductance in water is recorded here. Then, I pulled all the data in the state that meets the PCode parameters. 
+
+```{r N_datapull, warning = FALSE, message = FALSE}
+# Pulling site location information data in North Carolina 
+pCode <- c("00094", "00095", "00402", "70386", "72430", "90094", "90095", 
+           "90096", "99974", "99978", "99982")
+
+# Pulling USGS repository data that is in North Carolina and contains the parameters we want 
+scNC <- whatNWISdata(stateCd = "NC", 
+                     parameterCd = pCode)
+```
+
+### Tidying Site Location Data 
+
+In this section, I isolated the start and end years of data recording and filtered it so that only sites that recorded data after the year 2000 were included in the final dataset I used, "scNC_1". 
+
+I also created a column that calculated the period of time over which measurements were recorded. 
+
+```{r tidynitrate, warning = FALSE}
+# Creating new columns with the start and end year only 
+scNC <- scNC %>%
+  separate(begin_date, into = c("Year_start"), sep = "-", remove = FALSE) %>% 
+  separate(end_date, into = c("Year_end"), sep = "-", remove = FALSE) 
+
+# Adding a "period" column and filtering for sites with nitrate measurements starting from 2010 
+scNC_1 <- scNC %>% 
+  mutate(period = as.Date(end_date) - as.Date(begin_date)) %>% 
+  filter(Year_end > 2000) 
+```
+
+I also wanted to check which parameters remained in my dataset, at this point. 
+
+```{r}
+# Check parameters 
+unique(scNC_1$parm_cd)
+```
+
+By now, the only two parameters in the data are "00095" and "90095". These both have the same units, so I no longer have to worry about my parameters being measured in terms of different units. 
+
+## Map Site Locations by Measurement Number 
+
+I also wanted to map the data, just to see if I could observe any "clustering" before the actual calculations. I created a map that also colored the points according to how many measurements they contained. 
+
+```{r prepmap_sc, include = FALSE, warning = FALSE}
+# Fix NAs 
+scNC_1$dec_long_va <- ifelse(is.na(scNC_1$dec_long_va), 0, scNC_1$dec_long_va)
+scNC_1$dec_lat_va <- ifelse(is.na(scNC_1$dec_lat_va), 0, scNC_1$dec_lat_va)
+
+# Remove data 
+sc_clean_data <- subset(scNC_1, dec_long_va != 0 & dec_lat_va != 0)
+
+# Preparing data to map 
+sf_scNC_1 <- st_as_sf(sc_clean_data, 
+                        coords = c("dec_long_va", "dec_lat_va"),
+                        crs = 4269)
+usa <- st_as_sf(maps::map("state", fill=TRUE, plot =FALSE),
+                crs = 4269)
+```
+
+### Creating the map 
+
+This is the code for the map! Note that the colors are on a log scale, so it wouldn't look like a mass of light colored points due to a few outliers. Even though the numbers on the scale are decimals, none of the actual data points in the column are, since the number of measurements is only recorded in integers. 
+
+```{r}
+map_scNC_color <- ggplot() +
+  geom_sf(data = usa[usa$ID == "north carolina", ]) +
+  geom_sf(data = sf_scNC_1, aes(color = count_nu)) + 
+  xlab(NULL) +
+  ylab(NULL) +
+  theme_minimal() + 
+  theme(plot.title = element_text(hjust = 0.5),
+        plot.subtitle = element_text(hjust = 0.5)) + 
+  labs(title = "Specific Conductance Sites in North Carolina since 2000", 
+       caption = "United States Geological Survey, 2024.") + 
+  scale_color_gradient(name = "Number of Measurements", 
+                       low = "lightblue", high = "darkblue", 
+                       trans = "log")
+
+map_scNC_color
+```
+
+## Conducting Moran's I Analysis 
+
+Here I calculated the Moran's I, and the "weight" I assigned in the function was the distance between points, so that I could see spatial correlations.  
+
+### Calculating Moran's I Value 
+
+I noticed initially that the Moran's I value ($observed) was close to zero, which concerned me because that indicates the points are distributed completely randomly. However, I also looked at the p-value to see if my results were even signficant. 
+
+```{r}
+# Preparing matrix for Moran's I calculation 
+sc.dists <- as.matrix(dist(cbind(scNC_1$dec_long_va, scNC_1$dec_lat_va)))
+sc.dists.inv <- 1/sc.dists
+sc.dists.inv[is.infinite(sc.dists.inv)] <- 0
+diag(sc.dists.inv) <- 0
+
+# Take a look at the results of our calculation 
+morans_value <- Moran.I(scNC_1$count_nu, sc.dists.inv)
+morans_value 
+```
+
+### Looking at the p-value 
+
+Since my p-value is less than 0.05, I can conclude the Moran's I value is statistically significant and reject the null hypothesis. 
+
+```{r}
+# The p-value is statistically significant, therefore we can reject the null hypothesis 
+if (morans_value$p.value < 0.05) {
+    print("The p-value is statistically significant")
+} else {
+    print("The p-value is not statistically significant")
+}
+```
+
+### Looking at the z-score 
+
+I also looked at my z-score, subsituting in standard deviation for the square root of variance in the formula. It also came out significant at the 1%. 
+
+```{r}
+# Calculate the z-score 
+z_score <- (morans_value$observed - morans_value$expected)/morans_value$sd 
+z_score 
+
+# Determine whether our z-score is statistically significant 
+alpha = 0.01  # Significance level (adjust as needed) currently at the 5% level 
+z_critical = qnorm(1 - alpha/2)  # Critical value for two-tailed test
+
+if (abs(z_score) > z_critical) {
+    print("Moran's I is statistically significant")
+} else {
+    print("Moran's I is not statistically significant")
+}
+```
+
+## Conclusions 
+
+Because both my p-value and z-score came out as statistically significant, I can accept the alternative hypothesis and reasonably conclude that the number of measurements at a site is correlated with its proximity to other sites of similar measurements. 
+
+Next, I want to investigate whether proximity to the coast rather than other points has a spatial correlation, and what might be motivating these spatial correlations. Additionally, I want to look into the actual data in areas with a higher number of data measurements to see if salinity varies. 
